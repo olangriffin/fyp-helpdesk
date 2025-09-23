@@ -1,309 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>{{ title }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --accent: #2563eb;
-      --accent-soft: rgba(37, 99, 235, 0.08);
-      --border: #e2e8f0;
-      --text: #1f2933;
-      --muted: #52606d;
-      --success: #047857;
-      --warning: #b45309;
-    }
+{% extends "base.html" %}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Segoe UI", Roboto, sans-serif;
-    }
+{% block title %}{{ title }}{% endblock %}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.45;
-      padding: 2rem;
-    }
-
-    header {
-      margin-bottom: 1.5rem;
-    }
-
-    header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-    }
-
-    header p {
-      margin-top: 0.4rem;
-      color: var(--muted);
-    }
-
-    main {
-      display: grid;
-      gap: 1.5rem;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(280px, 360px) 1fr;
-      gap: 1.5rem;
-      align-items: start;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 15px 30px rgba(15, 23, 42, 0.05);
-    }
-
-    form h2,
-    .board h2 {
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-    }
-
-    label {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 0.45rem;
-      color: var(--muted);
-    }
-
-    input[type="text"],
-    input[type="email"],
-    textarea,
-    select {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.6rem 0.8rem;
-      margin-bottom: 1rem;
-      font-size: 0.95rem;
-      background: rgba(255, 255, 255, 0.9);
-      transition: border 0.2s ease;
-    }
-
-    input:focus,
-    textarea:focus,
-    select:focus {
-      border-color: var(--accent);
-      outline: none;
-      box-shadow: 0 0 0 3px var(--accent-soft);
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    button {
-      background: var(--accent);
-      border: none;
-      color: #fff;
-      padding: 0.7rem 1rem;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.1s ease, box-shadow 0.1s ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 12px rgba(37, 99, 235, 0.25);
-    }
-
-    .form-meta {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1rem;
-    }
-
-    .dynamic-field {
-      display: none;
-      border: 1px dashed var(--border);
-      background: rgba(148, 163, 184, 0.12);
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1rem;
-    }
-
-    .dynamic-field.active {
-      display: block;
-    }
-
-    .dynamic-field h3 {
-      font-size: 0.95rem;
-      margin-bottom: 0.6rem;
-    }
-
-    .form-status {
-      margin-top: 0.75rem;
-      font-size: 0.9rem;
-      color: var(--muted);
-      min-height: 1.2rem;
-    }
-
-    .form-status.error {
-      color: #b91c1c;
-    }
-
-    .form-status.success {
-      color: var(--success);
-    }
-
-    .board {
-      display: grid;
-      gap: 1rem;
-    }
-
-    .board-columns {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
-    .board-column {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .board-column header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.3rem;
-    }
-
-    .status-pill {
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 0.25rem 0.65rem;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-    }
-
-    .ticket-card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .ticket-card h3 {
-      font-size: 1rem;
-      font-weight: 700;
-    }
-
-    .ticket-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .ticket-meta span {
-      background: rgba(148, 163, 184, 0.2);
-      padding: 0.2rem 0.5rem;
-      border-radius: 999px;
-    }
-
-    .ticket-controls {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-
-    .ticket-controls select {
-      flex: 1;
-      margin: 0;
-    }
-
-    .ticket-controls button.secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-      box-shadow: none;
-    }
-
-    .ticket-controls button.secondary:hover {
-      background: var(--accent-soft);
-      transform: none;
-    }
-
-    .resolution {
-      background: rgba(4, 120, 87, 0.08);
-      color: var(--success);
-      border-radius: 10px;
-      padding: 0.7rem;
-      font-size: 0.85rem;
-    }
-
-    @media (max-width: 960px) {
-      body {
-        padding: 1rem;
-      }
-
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .form-meta {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-</head>
-<body>
-  {% if current_user %}
-  {% set nav_theme = 'light' %}
+{% block content %}
+{% if current_user %}
+{% set nav_theme = 'light' %}
   {% include "partials/nav.html" %}
-  {% endif %}
-  <header>
-    <h1>{{ title }}</h1>
-    <p>Create, triage, and resolve support tickets in one place. Submissions auto-refresh without leaving the page.</p>
+{% endif %}
+<main class="layout-page" data-helpdesk-form-only>
+  <header data-animate="fade">
+    <h1 class="hero-title">{{ title }}</h1>
+    <p class="hero-subtitle">Create support tickets with all the context your IT team needs. Focus on the request, we handle routing behind the scenes.</p>
   </header>
-  <main class="layout">
-    <section class="card">
-      <form id="ticket-form">
-        <h2>Capture a new ticket</h2>
-        <label for="subject">Subject</label>
-        <input id="subject" name="subject" type="text" placeholder="Brief summary" required>
+  <section class="surface-card" data-animate="fade">
+    <form data-helpdesk-form>
+        <h2 class="surface-card__title">Capture a new ticket</h2>
+        <div class="field">
+          <label for="subject">Subject</label>
+          <input id="subject" name="subject" type="text" placeholder="Brief summary" required>
+        </div>
 
-        <label for="description">Description</label>
-        <textarea id="description" name="description" placeholder="Describe the issue with steps to reproduce" required></textarea>
+        <div class="field">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" placeholder="Describe the issue with steps to reproduce" required></textarea>
+        </div>
 
-        <div class="form-meta">
-          <div>
+        <div class="input-inline">
+          <div class="field">
             <label for="issue_type">Issue Type</label>
-            <select id="issue_type" name="issue_type" required>
+            <select id="issue_type" name="issue_type" data-helpdesk-issue required>
               <option value="" disabled selected>Choose an issue type</option>
               {% for issue in issue_types %}
                 <option value="{{ issue }}">{{ issue.replace('_', ' ') | title }}</option>
               {% endfor %}
             </select>
           </div>
-          <div>
+          <div class="field">
             <label for="priority">Priority</label>
             <select id="priority" name="priority" required>
               {% for priority in priorities %}
@@ -315,256 +47,53 @@
 
         <div class="dynamic-field" data-issue="login_issue">
           <h3>Login diagnostics</h3>
-          <label for="context_username">Impacted username</label>
-          <input id="context_username" name="context_username" type="text" data-context-field placeholder="user@company.com">
-          <label for="context_2fa">Two-factor steps attempted</label>
-          <textarea id="context_2fa" name="context_2fa" data-context-field rows="2"></textarea>
+          <div class="field">
+            <label for="context_username">Impacted username</label>
+            <input id="context_username" name="context_username" type="text" data-context-field placeholder="user@company.com">
+          </div>
+          <div class="field">
+            <label for="context_2fa">Two-factor steps attempted</label>
+            <textarea id="context_2fa" name="context_2fa" data-context-field rows="2"></textarea>
+          </div>
         </div>
 
         <div class="dynamic-field" data-issue="network">
           <h3>Network checklist</h3>
-          <label for="context_location">Location or office</label>
-          <input id="context_location" name="context_location" type="text" data-context-field placeholder="HQ - Floor 3">
-          <label for="context_devices">Devices affected</label>
-          <textarea id="context_devices" name="context_devices" data-context-field rows="2" placeholder="Laptop, VOIP phone"></textarea>
+          <div class="field">
+            <label for="context_location">Location or office</label>
+            <input id="context_location" name="context_location" type="text" data-context-field placeholder="HQ - Floor 3">
+          </div>
+          <div class="field">
+            <label for="context_devices">Devices affected</label>
+            <textarea id="context_devices" name="context_devices" data-context-field rows="2" placeholder="Laptop, VOIP phone"></textarea>
+          </div>
         </div>
 
         <div class="dynamic-field" data-issue="hardware">
           <h3>Hardware notes</h3>
-          <label for="context_asset">Asset tag / serial</label>
-          <input id="context_asset" name="context_asset" type="text" data-context-field placeholder="FH-2194">
+          <div class="field">
+            <label for="context_asset">Asset tag / serial</label>
+            <input id="context_asset" name="context_asset" type="text" data-context-field placeholder="FH-2194">
+          </div>
         </div>
 
-        <label for="requester">Requester</label>
-        <input id="requester" name="requester" type="text" placeholder="Who raised this ticket?" required>
+        <div class="field">
+          <label for="requester">Requester</label>
+          <input id="requester" name="requester" type="text" placeholder="Who raised this ticket?" required>
+        </div>
 
-        <label for="assignee">Assignee (optional)</label>
-        <input id="assignee" name="assignee" type="text" placeholder="Assign instantly or leave blank">
+        <div class="field">
+          <label for="assignee">Assignee <span class="field-optional">(optional)</span></label>
+          <input id="assignee" name="assignee" type="text" placeholder="Assign instantly or leave blank">
+        </div>
 
-        <button type="submit">Submit ticket</button>
-        <p id="form-status" class="form-status" role="status"></p>
+        <button type="submit" class="button button-primary">Submit ticket</button>
+        <p class="form-status" data-form-status role="status"></p>
       </form>
-    </section>
+  </section>
+</main>
+{% endblock %}
 
-    <section class="card board">
-      <h2>Ticket tracker</h2>
-      <div class="board-columns" id="board-columns"></div>
-    </section>
-  </main>
-
-  <template id="ticket-template">
-    <article class="ticket-card">
-      <header>
-        <h3 data-ticket-subject></h3>
-        <span class="status-pill" data-ticket-created></span>
-      </header>
-      <p data-ticket-description></p>
-      <div class="ticket-meta">
-        <span data-ticket-priority></span>
-        <span data-ticket-issue></span>
-        <span data-ticket-requester></span>
-        <span data-ticket-assignee></span>
-      </div>
-      <div class="resolution" data-ticket-resolution></div>
-      <div class="ticket-controls">
-        <select data-ticket-status></select>
-        <button type="button" class="secondary" data-ticket-resolve>Resolve</button>
-      </div>
-    </article>
-  </template>
-
-  <script>
-    const statuses = {{ statuses | tojson }};
-    const priorities = {{ priorities | tojson }};
-
-    const boardColumns = document.getElementById('board-columns');
-    const form = document.getElementById('ticket-form');
-    const formStatus = document.getElementById('form-status');
-    const ticketTemplate = document.getElementById('ticket-template');
-
-    const statusLabels = {
-      open: 'Open',
-      in_progress: 'In Progress',
-      waiting_for_customer: 'Waiting on Customer',
-      resolved: 'Resolved',
-    };
-
-    const dynamicSections = Array.from(document.querySelectorAll('.dynamic-field'));
-    const statusContainers = new Map();
-
-    function formatDate(isoString) {
-      const date = new Date(isoString);
-      return date.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
-    }
-
-    function renderColumnShells() {
-      boardColumns.innerHTML = '';
-      statuses.forEach((status) => {
-        const column = document.createElement('div');
-        column.className = 'board-column';
-        column.dataset.statusColumn = status;
-        column.innerHTML = `
-          <header>
-            <span>${statusLabels[status] ?? status}</span>
-            <span class="status-pill" data-count="0">0</span>
-          </header>
-          <div class="column-body"></div>
-        `;
-        boardColumns.appendChild(column);
-        statusContainers.set(status, column.querySelector('.column-body'));
-      });
-    }
-
-    function renderTickets(tickets) {
-      statusContainers.forEach((container) => { container.innerHTML = ''; });
-      const counts = new Map(statuses.map((status) => [status, 0]));
-
-      tickets.forEach((ticket) => {
-        const column = statusContainers.get(ticket.status);
-        if (!column) return;
-        counts.set(ticket.status, (counts.get(ticket.status) || 0) + 1);
-        const card = ticketTemplate.content.firstElementChild.cloneNode(true);
-        card.dataset.ticketId = ticket.id;
-        card.querySelector('[data-ticket-subject]').textContent = ticket.subject;
-        card.querySelector('[data-ticket-created]').textContent = formatDate(ticket.created_at);
-        card.querySelector('[data-ticket-description]').textContent = ticket.description;
-        card.querySelector('[data-ticket-priority]').textContent = `Priority: ${ticket.priority.toUpperCase()}`;
-        card.querySelector('[data-ticket-issue]').textContent = `Type: ${ticket.issue_type.replace(/_/g, ' ')}`;
-        card.querySelector('[data-ticket-requester]').textContent = `Requester: ${ticket.requester}`;
-        card.querySelector('[data-ticket-assignee]').textContent = ticket.assignee ? `Assignee: ${ticket.assignee}` : 'Unassigned';
-
-        const resolution = card.querySelector('[data-ticket-resolution]');
-        if (ticket.resolution_notes) {
-          resolution.textContent = ticket.resolution_notes;
-          resolution.style.display = 'block';
-        } else {
-          resolution.style.display = 'none';
-        }
-
-        const select = card.querySelector('[data-ticket-status]');
-        select.innerHTML = statuses.map((status) => {
-          const selected = status === ticket.status ? 'selected' : '';
-          return `<option value="${status}" ${selected}>${statusLabels[status] ?? status}</option>`;
-        }).join('');
-
-        select.addEventListener('change', (event) => {
-          updateTicket(ticket.id, { status: event.target.value });
-        });
-
-        const resolveButton = card.querySelector('[data-ticket-resolve]');
-        resolveButton.addEventListener('click', () => {
-          updateTicket(ticket.id, { status: 'resolved' });
-        });
-
-        column.appendChild(card);
-      });
-
-      document.querySelectorAll('[data-status-column]').forEach((column) => {
-        const status = column.dataset.statusColumn;
-        const count = counts.get(status) || 0;
-        column.querySelector('[data-count]').textContent = count;
-      });
-    }
-
-    async function fetchTickets() {
-      const response = await fetch('/tickets');
-      if (!response.ok) {
-        throw new Error('Unable to load tickets');
-      }
-      return response.json();
-    }
-
-    async function updateTicket(id, payload) {
-      try {
-        const response = await fetch(`/tickets/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (!response.ok) {
-          throw new Error('Unable to update ticket');
-        }
-        await refreshBoard();
-      } catch (error) {
-        console.error(error);
-        formStatus.textContent = error.message;
-        formStatus.className = 'form-status error';
-      }
-    }
-
-    async function refreshBoard() {
-      const tickets = await fetchTickets();
-      renderTickets(tickets);
-    }
-
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const formData = new FormData(form);
-      const payload = Object.fromEntries(formData.entries());
-
-      const contextFields = Array.from(form.querySelectorAll('[data-context-field]'));
-      const contextLines = [];
-      contextFields.forEach((field) => {
-        if (field.value) {
-          const label = field.previousElementSibling && field.previousElementSibling.tagName === 'LABEL'
-            ? field.previousElementSibling.textContent.replace(/:\s*$/, '')
-            : field.name;
-          contextLines.push(`${label}: ${field.value}`);
-        }
-        delete payload[field.name];
-      });
-
-      if (contextLines.length > 0) {
-        payload.additional_context = contextLines.join('\n');
-      }
-
-      formStatus.textContent = 'Submitting ticket…';
-      formStatus.className = 'form-status';
-
-      try {
-        const response = await fetch('/tickets', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.detail || 'Submission failed');
-        }
-
-        const ticket = await response.json();
-        form.reset();
-        toggleDynamicFields('');
-        formStatus.textContent = ticket.status === 'resolved'
-          ? 'Ticket auto-resolved instantly. Review in the Resolved column.'
-          : 'Ticket created successfully.';
-        formStatus.className = 'form-status success';
-        await refreshBoard();
-      } catch (error) {
-        formStatus.textContent = error.message;
-        formStatus.className = 'form-status error';
-      }
-    });
-
-    function toggleDynamicFields(selectedIssue) {
-      dynamicSections.forEach((section) => {
-        section.classList.toggle('active', section.dataset.issue === selectedIssue);
-        if (section.dataset.issue !== selectedIssue) {
-          section.querySelectorAll('[data-context-field]').forEach((field) => { field.value = ''; });
-        }
-      });
-    }
-
-    document.getElementById('issue_type').addEventListener('change', (event) => {
-      toggleDynamicFields(event.target.value);
-    });
-
-    renderColumnShells();
-    refreshBoard().catch((error) => {
-      formStatus.textContent = error.message;
-      formStatus.className = 'form-status error';
-    });
-  </script>
-</body>
-</html>
+{% block scripts %}
+  <script src="/static/scripts/helpdesk-form.js" defer></script>
+{% endblock %}
