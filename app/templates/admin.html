@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.7);
+      --border: rgba(148, 163, 184, 0.25);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --danger: #f87171;
+      --success: #34d399;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(150deg, #020617 0%, #0f172a 45%, #1e293b 100%);
+      color: var(--text);
+      padding: 2rem clamp(1.5rem, 4vw, 4rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: clamp(1.7rem, 2.5vw, 2.4rem);
+      font-weight: 700;
+    }
+
+    header .actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    a.button {
+      text-decoration: none;
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text);
+      padding: 0.65rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: border 0.2s ease, transform 0.2s ease;
+    }
+
+    a.button:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    main.dashboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      padding: 1.4rem;
+      box-shadow: 0 20px 45px rgba(2, 6, 23, 0.35);
+    }
+
+    .panel h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card {
+      background: rgba(2, 132, 199, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 16px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .stat-card span.label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(226, 232, 240, 0.75);
+    }
+
+    .stat-card strong {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    select,
+    input[type="search"] {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 0.6rem 0.8rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      font-size: 0.9rem;
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    }
+
+    th {
+      text-align: left;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    tbody tr:hover {
+      background: rgba(15, 118, 110, 0.15);
+      cursor: pointer;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent);
+    }
+
+    .status-pill[data-status="resolved"] {
+      background: rgba(52, 211, 153, 0.18);
+      color: var(--success);
+    }
+
+    .status-pill[data-status="waiting_for_customer"] {
+      background: rgba(250, 204, 21, 0.18);
+      color: #facc15;
+    }
+
+    .status-pill[data-status="in_progress"] {
+      background: rgba(96, 165, 250, 0.18);
+      color: #93c5fd;
+    }
+
+    .priority-pill {
+      padding: 0.2rem 0.5rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(251, 146, 60, 0.18);
+      color: #f97316;
+    }
+
+    .priority-pill[data-priority="critical"] {
+      background: rgba(248, 113, 113, 0.24);
+      color: var(--danger);
+    }
+
+    .priority-pill[data-priority="low"] {
+      background: rgba(96, 165, 250, 0.16);
+      color: #60a5fa;
+    }
+
+    .detail-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: sticky;
+      top: 1.5rem;
+    }
+
+    .detail-panel header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .detail-panel h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .detail-meta {
+      display: grid;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    textarea,
+    input[type="text"] {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 0.6rem 0.8rem;
+      width: 100%;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    button.primary,
+    button.secondary,
+    button.ghost {
+      padding: 0.65rem 1.1rem;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button.primary {
+      background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+      color: #0f172a;
+    }
+
+    button.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 25px rgba(14, 165, 233, 0.35);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    button.secondary:hover {
+      border-color: var(--accent-strong);
+      color: var(--accent-strong);
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .flash {
+      font-size: 0.85rem;
+      color: var(--muted);
+      min-height: 1.1rem;
+    }
+
+    .flash.error {
+      color: var(--danger);
+    }
+
+    .flash.success {
+      color: var(--success);
+    }
+
+    @media (max-width: 1180px) {
+      main.dashboard {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-panel {
+        position: relative;
+        top: 0;
+        order: -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include "partials/nav.html" %}
+  <header>
+    <div>
+      <h1>{{ title }}</h1>
+      <p>Monitor live ticket flow, adapt SLAs, and act on blocked work in real time.</p>
+    </div>
+    <div class="actions">
+      <a class="button" href="/desk">Back to intake</a>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <section class="panel">
+      <h2>Ticket health</h2>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="flash" id="stats-flash"></div>
+
+      <h2>Filters</h2>
+      <div class="filters">
+        <label>
+          Status
+          <select id="filter-status">
+            <option value="all">All statuses</option>
+            {% for status in statuses %}
+              <option value="{{ status }}">{{ status.replace('_', ' ') | title }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          Priority
+          <select id="filter-priority">
+            <option value="all">All priorities</option>
+            {% for priority in priorities %}
+              <option value="{{ priority }}">{{ priority.title() }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          Search
+          <input id="search-term" type="search" placeholder="Subject, requester, issue type">
+        </label>
+      </div>
+    </section>
+
+    <aside class="panel detail-panel hidden" id="detail-panel">
+      <header>
+        <div>
+          <p class="status-pill" data-status-pill></p>
+          <h3 id="detail-subject"></h3>
+        </div>
+        <button type="button" class="ghost" id="close-detail">Close</button>
+      </header>
+      <p class="flash" id="detail-flash"></p>
+      <div class="detail-meta" id="detail-meta"></div>
+      <form id="detail-form" class="detail-form">
+        <label>
+          Status
+          <select id="detail-status"></select>
+        </label>
+        <label>
+          Assignee
+          <input id="detail-assignee" type="text" placeholder="Assign owner">
+        </label>
+        <label>
+          Resolution notes
+          <textarea id="detail-resolution" placeholder="Add or adjust handoff notes"></textarea>
+        </label>
+        <div class="detail-actions">
+          <button type="submit" class="primary">Save changes</button>
+          <button type="button" class="secondary" id="resolve-ticket">Mark resolved</button>
+        </div>
+      </form>
+    </aside>
+
+    <section class="panel" style="grid-column: 1 / -1;">
+      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h2>Tickets</h2>
+        <span class="flash" id="table-flash"></span>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Requester</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Assignee</th>
+              <th>Updated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ticket-table"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <template id="ticket-row-template">
+    <tr>
+      <td data-cell="subject"></td>
+      <td data-cell="requester"></td>
+      <td><span class="status-pill" data-cell="status"></span></td>
+      <td><span class="priority-pill" data-cell="priority"></span></td>
+      <td data-cell="assignee"></td>
+      <td data-cell="updated"></td>
+      <td><button type="button" class="secondary" data-action="manage">Manage</button></td>
+    </tr>
+  </template>
+
+  <script>
+    const statuses = {{ statuses | tojson }};
+    const priorities = {{ priorities | tojson }};
+    const initialStats = {{ stats | tojson }};
+
+    const statsGrid = document.getElementById('stats-grid');
+    const statsFlash = document.getElementById('stats-flash');
+    const statusFilter = document.getElementById('filter-status');
+    const priorityFilter = document.getElementById('filter-priority');
+    const searchInput = document.getElementById('search-term');
+    const ticketTable = document.getElementById('ticket-table');
+    const tableFlash = document.getElementById('table-flash');
+    const rowTemplate = document.getElementById('ticket-row-template');
+    const detailPanel = document.getElementById('detail-panel');
+    const detailSubject = document.getElementById('detail-subject');
+    const detailMeta = document.getElementById('detail-meta');
+    const detailStatus = document.getElementById('detail-status');
+    const detailAssignee = document.getElementById('detail-assignee');
+    const detailResolution = document.getElementById('detail-resolution');
+    const detailForm = document.getElementById('detail-form');
+    const detailFlash = document.getElementById('detail-flash');
+    const closeDetail = document.getElementById('close-detail');
+    const resolveButton = document.getElementById('resolve-ticket');
+    const detailStatusPill = detailPanel.querySelector('[data-status-pill]');
+
+    const statusLabels = {
+      open: 'Open',
+      in_progress: 'In Progress',
+      waiting_for_customer: 'Waiting on Customer',
+      resolved: 'Resolved',
+    };
+
+    let tickets = [];
+    let selectedTicket = null;
+
+    function formatDate(isoString) {
+      if (!isoString) return '—';
+      const date = new Date(isoString);
+      return date.toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+
+    function renderStats(stats) {
+      if (!stats) {
+        statsGrid.innerHTML = '';
+        return;
+      }
+
+      const cards = [];
+      cards.push({ label: 'Total tickets', value: stats.total?.tickets ?? 0 });
+      statuses.forEach((status) => {
+        cards.push({ label: statusLabels[status] ?? status, value: stats.status?.[status] ?? 0 });
+      });
+      priorities.forEach((priority) => {
+        cards.push({ label: `${priority} priority`, value: stats.priority?.[priority] ?? 0 });
+      });
+
+      statsGrid.innerHTML = '';
+      cards.forEach(({ label, value }) => {
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        card.innerHTML = `<span class="label">${label}</span><strong>${value}</strong>`;
+        statsGrid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const statusValue = statusFilter.value;
+      const priorityValue = priorityFilter.value;
+      const term = searchInput.value.trim().toLowerCase();
+
+      return tickets.filter((ticket) => {
+        const matchesStatus = statusValue === 'all' || ticket.status === statusValue;
+        const matchesPriority = priorityValue === 'all' || ticket.priority === priorityValue;
+        const matchesTerm = !term || [ticket.subject, ticket.description, ticket.requester, ticket.issue_type]
+          .some((field) => field && field.toLowerCase().includes(term));
+        return matchesStatus && matchesPriority && matchesTerm;
+      });
+    }
+
+    function renderTable() {
+      const filtered = applyFilters();
+      ticketTable.innerHTML = '';
+
+      if (filtered.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `<td colspan="7" style="text-align:center; padding: 2rem; color: var(--muted);">No tickets match the current filters.</td>`;
+        ticketTable.appendChild(emptyRow);
+        return;
+      }
+
+      filtered.forEach((ticket) => {
+        const row = rowTemplate.content.firstElementChild.cloneNode(true);
+        row.dataset.ticketId = ticket.id;
+        row.querySelector('[data-cell="subject"]').textContent = ticket.subject;
+        row.querySelector('[data-cell="requester"]').textContent = ticket.requester;
+        const statusCell = row.querySelector('[data-cell="status"]');
+        statusCell.textContent = statusLabels[ticket.status] ?? ticket.status;
+        statusCell.dataset.status = ticket.status;
+        const priorityCell = row.querySelector('[data-cell="priority"]');
+        priorityCell.textContent = ticket.priority;
+        priorityCell.dataset.priority = ticket.priority;
+        row.querySelector('[data-cell="assignee"]').textContent = ticket.assignee || 'Unassigned';
+        row.querySelector('[data-cell="updated"]').textContent = formatDate(ticket.updated_at);
+
+        row.addEventListener('click', () => {
+          showDetail(ticket.id);
+        });
+
+        const manageButton = row.querySelector('[data-action="manage"]');
+        manageButton.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          showDetail(ticket.id);
+        });
+
+        ticketTable.appendChild(row);
+      });
+    }
+
+    function populateStatusSelect(select, value) {
+      select.innerHTML = statuses.map((status) => {
+        const selected = status === value ? 'selected' : '';
+        return `<option value="${status}" ${selected}>${statusLabels[status] ?? status}</option>`;
+      }).join('');
+    }
+
+    function showDetail(ticketId) {
+      selectedTicket = tickets.find((ticket) => ticket.id === ticketId);
+      if (!selectedTicket) return;
+
+      detailPanel.classList.remove('hidden');
+      detailSubject.textContent = selectedTicket.subject;
+      detailStatusPill.textContent = statusLabels[selectedTicket.status] ?? selectedTicket.status;
+      detailStatusPill.dataset.status = selectedTicket.status;
+      detailMeta.innerHTML = `
+        <span><strong>Requester:</strong> ${selectedTicket.requester}</span>
+        <span><strong>Issue type:</strong> ${selectedTicket.issue_type.replace(/_/g, ' ')}</span>
+        <span><strong>Priority:</strong> ${selectedTicket.priority}</span>
+        <span><strong>Created:</strong> ${formatDate(selectedTicket.created_at)}</span>
+        <span><strong>Updated:</strong> ${formatDate(selectedTicket.updated_at)}</span>
+      `;
+      populateStatusSelect(detailStatus, selectedTicket.status);
+      detailAssignee.value = selectedTicket.assignee || '';
+      detailResolution.value = selectedTicket.resolution_notes || '';
+      detailFlash.textContent = '';
+      detailFlash.className = 'flash';
+    }
+
+    async function refreshStats() {
+      try {
+        statsFlash.textContent = 'Refreshing…';
+        statsFlash.className = 'flash';
+        const response = await fetch('/tickets/stats');
+        if (!response.ok) throw new Error('Unable to load stats');
+        const stats = await response.json();
+        renderStats(stats);
+        statsFlash.textContent = '';
+      } catch (error) {
+        statsFlash.textContent = error.message;
+        statsFlash.className = 'flash error';
+      }
+    }
+
+    async function refreshTickets() {
+      try {
+        tableFlash.textContent = 'Refreshing…';
+        tableFlash.className = 'flash';
+        const response = await fetch('/tickets');
+        if (!response.ok) throw new Error('Unable to load tickets');
+        tickets = await response.json();
+        renderTable();
+        tableFlash.textContent = '';
+        if (selectedTicket) {
+          const updated = tickets.find((ticket) => ticket.id === selectedTicket.id);
+          if (updated) {
+            selectedTicket = updated;
+            showDetail(updated.id);
+          }
+        }
+      } catch (error) {
+        tableFlash.textContent = error.message;
+        tableFlash.className = 'flash error';
+      }
+    }
+
+    async function saveTicketChanges(payload) {
+      if (!selectedTicket) return;
+      detailFlash.textContent = 'Saving…';
+      detailFlash.className = 'flash';
+      const response = await fetch(`/tickets/${selectedTicket.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || 'Unable to update ticket');
+      }
+      detailFlash.textContent = 'Changes saved';
+      detailFlash.className = 'flash success';
+      await Promise.all([refreshTickets(), refreshStats()]);
+    }
+
+    detailForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        await saveTicketChanges({
+          status: detailStatus.value,
+          assignee: detailAssignee.value || null,
+          resolution_notes: detailResolution.value || null,
+        });
+      } catch (error) {
+        detailFlash.textContent = error.message;
+        detailFlash.className = 'flash error';
+      }
+    });
+
+    resolveButton.addEventListener('click', async () => {
+      if (!selectedTicket) return;
+      try {
+        await saveTicketChanges({
+          status: 'resolved',
+          resolution_notes: detailResolution.value || selectedTicket.resolution_notes || 'Resolved via dashboard action.',
+        });
+      } catch (error) {
+        detailFlash.textContent = error.message;
+        detailFlash.className = 'flash error';
+      }
+    });
+
+    closeDetail.addEventListener('click', () => {
+      detailPanel.classList.add('hidden');
+      selectedTicket = null;
+    });
+
+    statusFilter.addEventListener('change', renderTable);
+    priorityFilter.addEventListener('change', renderTable);
+    searchInput.addEventListener('input', () => {
+      window.clearTimeout(searchInput._timeout);
+      searchInput._timeout = window.setTimeout(renderTable, 150);
+    });
+
+    if (initialStats) {
+      renderStats(initialStats);
+    }
+
+    refreshStats();
+    refreshTickets();
+    window.setInterval(() => {
+      refreshTickets();
+      refreshStats();
+    }, 30000);
+  </script>
+</body>
+</html>

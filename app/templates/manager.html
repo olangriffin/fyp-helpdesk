@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SmartDesk Manager Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.75);
+      --border: rgba(148, 163, 184, 0.25);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --surface: rgba(148, 163, 184, 0.08);
+      --shadow: rgba(8, 47, 73, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 15% 20%, rgba(14, 116, 144, 0.35), transparent 55%),
+        radial-gradient(circle at 80% 10%, rgba(99, 102, 241, 0.3), transparent 60%),
+        radial-gradient(circle at 45% 80%, rgba(59, 130, 246, 0.25), transparent 70%),
+        var(--bg);
+      color: var(--text);
+      padding: clamp(2rem, 5vw, 3rem);
+      display: grid;
+      gap: 2.5rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    header h1 {
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .metric {
+      background: var(--panel);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 1.3rem;
+      box-shadow: 0 22px 45px var(--shadow);
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .metric span.label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .metric strong {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: 1.4rem;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.8rem;
+      display: grid;
+      gap: 1.2rem;
+      box-shadow: 0 28px 55px rgba(8, 47, 73, 0.3);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .ticket-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.2rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+
+    .panel h2 {
+      font-size: 1.25rem;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.7rem 1.1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+
+    .cta:hover {
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    @media (max-width: 960px) {
+      .panels {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include "partials/nav.html" %}
+  <header>
+    <div>
+      <p class="muted">IT Manager: {{ current_user.full_name or current_user.email }}</p>
+      <h1>{{ organization.name if organization else 'SmartDesk Manager Console' }}</h1>
+      {% if organization %}
+      <p class="muted">Tracking {{ organization_plan }} plan | {{ summary.total or 0 }} total tickets</p>
+      {% endif %}
+    </div>
+    <a class="cta" href="/desk">Open helpdesk</a>
+  </header>
+
+  <section class="grid">
+    <article class="metric">
+      <span class="label">Open tickets</span>
+      <strong>{{ summary.get('open', 0) }}</strong>
+    </article>
+    <article class="metric">
+      <span class="label">In progress</span>
+      <strong>{{ summary.get('in_progress', 0) }}</strong>
+    </article>
+    <article class="metric">
+      <span class="label">Waiting on customer</span>
+      <strong>{{ summary.get('waiting_for_customer', 0) }}</strong>
+    </article>
+    <article class="metric">
+      <span class="label">Resolved last 7 days</span>
+      <strong>{{ recent_resolved }}</strong>
+    </article>
+  </section>
+
+  <section class="panels">
+    <article class="panel">
+      <h2>Live ticket feed</h2>
+      {% if tickets %}
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Requester</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in tickets %}
+          <tr>
+            <td>{{ ticket.subject }}</td>
+            <td><span class="ticket-status">{{ ticket.status.replace('_', ' ') }}</span></td>
+            <td>{{ ticket.priority }}</td>
+            <td class="muted">{{ ticket.requester_name or ticket.requester_email or 'Unknown' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="muted">No tickets yet. Encourage your team to submit requests via SmartDesk.</p>
+      {% endif %}
+    </article>
+    <article class="panel">
+      <h2>Form builder</h2>
+      <p class="muted">Coming soon: tailor question sets and workflows per department. Define required fields, routing, and automations without code.</p>
+      <a class="cta" href="#">Preview templates</a>
+    </article>
+  </section>
+</body>
+</html>

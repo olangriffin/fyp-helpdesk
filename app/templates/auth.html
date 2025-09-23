@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #020617;
+      --card: rgba(15, 23, 42, 0.75);
+      --card-soft: rgba(15, 23, 42, 0.55);
+      --border: rgba(148, 163, 184, 0.2);
+      --divider: rgba(148, 163, 184, 0.12);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --error: #f87171;
+      --success: #4ade80;
+      --info: #60a5fa;
+      --shadow: rgba(8, 47, 73, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(1.5rem, 4vw, 3rem);
+      background: radial-gradient(circle at 20% 20%, rgba(14, 116, 144, 0.35), transparent 55%),
+        radial-gradient(circle at 80% 10%, rgba(99, 102, 241, 0.3), transparent 60%),
+        radial-gradient(circle at 50% 80%, rgba(79, 70, 229, 0.22), transparent 70%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: clamp(2rem, 5vw, 3rem);
+    }
+
+    .brand {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .back-link {
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--text);
+      background: rgba(148, 163, 184, 0.18);
+    }
+
+    main.layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 460px));
+      gap: clamp(1.5rem, 4vw, 3rem);
+      flex: 1;
+      align-items: start;
+    }
+
+    .intro {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .intro h1 {
+      font-size: clamp(2.25rem, 5vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+
+    .intro p {
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+      line-height: 1.6;
+      max-width: 38ch;
+    }
+
+    .intro ul {
+      list-style: none;
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .intro li {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      color: var(--muted);
+      font-size: 0.97rem;
+      line-height: 1.5;
+    }
+
+    .intro li::before {
+      content: "*";
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 0.1rem;
+    }
+
+    .auth-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: clamp(1.5rem, 3vw, 2.2rem);
+      box-shadow: 0 35px 65px var(--shadow);
+      backdrop-filter: blur(18px);
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.45);
+      padding: 0.25rem;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      width: fit-content;
+    }
+
+    .mode-button {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 0.45rem 1.2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .mode-button.active {
+      background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+      color: #0f172a;
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.28);
+    }
+
+    .oauth-actions {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .oauth-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(15, 23, 42, 0.55);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      transition: border 0.2s ease, background 0.2s ease;
+    }
+
+    .oauth-button:hover {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    .divider {
+      position: relative;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: var(--divider);
+    }
+
+    .divider::before {
+      left: 0;
+    }
+
+    .divider::after {
+      right: 0;
+    }
+
+    .form-panel {
+      display: none;
+      gap: 1.2rem;
+    }
+
+    body[data-mode="login"] #login-panel,
+    body[data-mode="signup"] #signup-panel {
+      display: grid;
+    }
+
+    form {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .field-inline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.8rem;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    button[type="submit"] {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 0.75rem 0.9rem;
+      background: rgba(15, 23, 42, 0.55);
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-wrapper input {
+      flex: 1;
+      padding-right: 3rem;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 0.65rem;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    button[type="submit"] {
+      background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+      color: #0f172a;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 18px 35px rgba(56, 189, 248, 0.25);
+    }
+
+    button[type="submit"]:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      box-shadow: none;
+    }
+
+    .form-footer {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .switch-link {
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .form-message {
+      min-height: 1.1rem;
+      font-size: 0.9rem;
+    }
+
+    .form-message.error {
+      color: var(--error);
+    }
+
+    .form-message.success {
+      color: var(--success);
+    }
+
+    .form-message.info {
+      color: var(--info);
+    }
+
+    .password-hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: clamp(2rem, 5vw, 3rem);
+      color: rgba(148, 163, 184, 0.65);
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .resend-link {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 840px) {
+      body {
+        padding: clamp(1rem, 3vw, 2rem);
+      }
+
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      main.layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body data-mode="{{ mode }}">
+  <header class="top-bar">
+    <a class="back-link" href="/">&#8592; Back to landing</a>
+    <span class="brand">SmartDesk</span>
+  </header>
+  <main class="layout">
+    <section class="intro">
+      <h1>Access your SmartDesk workspace</h1>
+      <p>Authenticate to reach your personalized dashboard, manage tickets, and collaborate across teams in one command center.</p>
+      <ul>
+        <li>Unified entry point for requesters, IT managers, and SmartDesk operations teams.</li>
+        <li>Secure sessions with automatic expiration, email verification, and device-aware login tracking.</li>
+        <li>Instant redirect to the workspace that matches your assigned role.</li>
+      </ul>
+    </section>
+    <section class="auth-card">
+      <div class="mode-switch">
+        <button type="button" class="mode-button" data-switch="login">Log in</button>
+        <button type="button" class="mode-button" data-switch="signup">Sign up</button>
+      </div>
+      <div class="oauth-actions">
+        <button type="button" class="oauth-button" id="google-oauth">Continue with Google</button>
+      </div>
+      <div class="divider">or use your work email</div>
+      <div id="login-panel" class="form-panel">
+        <form id="login-form">
+          <div class="field">
+            <label for="login-email">Work email</label>
+            <input id="login-email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="login-password">Password</label>
+            <div class="password-wrapper">
+              <input id="login-password" name="password" type="password" minlength="8" autocomplete="current-password" required>
+              <button type="button" class="toggle-password" data-target="login-password">Show</button>
+            </div>
+          </div>
+          <div class="form-message" role="status"></div>
+          <button type="submit">Access your workspace</button>
+          <p class="form-footer">New to SmartDesk? <span class="switch-link" data-switch="signup">Create an account instead.</span></p>
+          <p class="form-footer">Haven't verified your email? <span class="resend-link" data-resend="login">Resend verification email.</span></p>
+        </form>
+      </div>
+      <div id="signup-panel" class="form-panel">
+        <form id="signup-form">
+          <div class="field">
+            <label for="signup-email">Work email</label>
+            <input id="signup-email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="signup-password">Password</label>
+            <div class="password-wrapper">
+              <input id="signup-password" name="password" type="password" minlength="8" autocomplete="new-password" required>
+              <button type="button" class="toggle-password" data-target="signup-password">Show</button>
+            </div>
+            <span class="password-hint">Use at least 8 characters with upper/lowercase letters and a digit.</span>
+          </div>
+          <div class="field">
+            <label for="signup-name">Full name <span style="font-weight:400; color: var(--muted);">(optional)</span></label>
+            <input id="signup-name" name="full_name" type="text" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="signup-role">Primary role</label>
+            <select id="signup-role" name="primary_role">
+              {% for role in roles %}
+              <option value="{{ role.value }}"{% if role.value == 'requester' %} selected{% endif %}>{{ role.label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field-inline">
+            <div class="field">
+              <label for="signup-title">Job title <span style="font-weight:400; color: var(--muted);">(optional)</span></label>
+              <input id="signup-title" name="job_title" type="text">
+            </div>
+            <div class="field">
+              <label for="signup-department">Department <span style="font-weight:400; color: var(--muted);">(optional)</span></label>
+              <input id="signup-department" name="department" type="text">
+            </div>
+          </div>
+          <div class="field">
+            <label for="signup-org">Organisation name <span style="font-weight:400; color: var(--muted);">(optional)</span></label>
+            <input id="signup-org" name="organization_name" type="text" placeholder="e.g. Stellar Tech">
+          </div>
+          <div class="field">
+            <label for="signup-org-slug">Organisation slug <span style="font-weight:400; color: var(--muted);">(optional)</span></label>
+            <input id="signup-org-slug" name="organization_slug" type="text" placeholder="stellar-tech">
+          </div>
+          <div class="form-message" role="status"></div>
+          <button type="submit">Create and continue</button>
+          <p class="form-footer">Already onboarded? <span class="switch-link" data-switch="login">Log in with your SmartDesk credentials.</span></p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <span>&copy; {{ year }} SmartDesk. Secure access for modern service teams.</span>
+    <span>Questions? Contact your SmartDesk administrator.</span>
+  </footer>
+  <script>
+    (function () {
+      const body = document.body;
+      const modeButtons = document.querySelectorAll('.mode-button');
+      const switchLinks = document.querySelectorAll('.switch-link');
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const params = new URLSearchParams(window.location.search);
+
+      function setMode(next) {
+        const mode = next === 'signup' ? 'signup' : 'login';
+        body.dataset.mode = mode;
+        modeButtons.forEach((button) => {
+          button.classList.toggle('active', button.dataset.switch === mode);
+        });
+        params.set('mode', mode);
+        const query = params.toString();
+        const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+        history.replaceState(null, '', newUrl);
+        const focusTarget = document.querySelector(mode === 'signup' ? '#signup-email' : '#login-email');
+        if (focusTarget) {
+          focusTarget.focus();
+        }
+      }
+
+      modeButtons.forEach((button) => {
+        button.addEventListener('click', () => setMode(button.dataset.switch));
+      });
+
+      switchLinks.forEach((link) => {
+        link.addEventListener('click', () => setMode(link.dataset.switch));
+      });
+
+      setMode(body.dataset.mode);
+
+      document.querySelectorAll('.toggle-password').forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+          const input = document.getElementById(toggle.dataset.target);
+          if (!input) return;
+          const isHidden = input.type === 'password';
+          input.type = isHidden ? 'text' : 'password';
+          toggle.textContent = isHidden ? 'Hide' : 'Show';
+        });
+      });
+
+      function displayMessage(messageEl, text, variant) {
+        messageEl.textContent = text || '';
+        messageEl.classList.remove('error', 'success', 'info');
+        if (variant) {
+          messageEl.classList.add(variant);
+        }
+      }
+
+      async function submitForm(form, endpoint, successHandler) {
+        const message = form.querySelector('.form-message');
+        const submitButton = form.querySelector('button[type="submit"]');
+        displayMessage(message, '', null);
+        submitButton.disabled = true;
+
+        try {
+          const formData = new FormData(form);
+          const payload = {};
+          for (const [key, rawValue] of formData.entries()) {
+            const value = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
+            payload[key] = value === '' ? null : value;
+          }
+
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            const detail = Array.isArray(data.detail)
+              ? data.detail.map((item) => item.msg || item).join(', ')
+              : (data.detail || 'Unable to complete the request.');
+            throw new Error(detail);
+          }
+
+          successHandler({ data, messageEl: message });
+        } catch (error) {
+          displayMessage(message, error instanceof Error ? error.message : 'Unable to complete the request.', 'error');
+        } finally {
+          submitButton.disabled = false;
+        }
+      }
+
+      loginForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        submitForm(loginForm, '/login', ({ data, messageEl }) => {
+          displayMessage(messageEl, 'Login successful. Redirecting...', 'success');
+          if (data.redirect_url) {
+            setTimeout(() => {
+              window.location.href = data.redirect_url;
+            }, 400);
+          }
+        });
+      });
+
+      signupForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        submitForm(signupForm, '/signup', ({ data, messageEl }) => {
+          const text = data.message || 'Account created. Verify your email to continue.';
+          displayMessage(messageEl, text, 'info');
+          if (data.redirect_url) {
+            setTimeout(() => {
+              window.location.href = data.redirect_url;
+            }, 900);
+          }
+        });
+      });
+
+      async function resendVerification(email) {
+        try {
+          const response = await fetch('/resend-verification', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(data.detail || 'Unable to resend verification email.');
+          }
+          alert(data.message || 'Verification email sent.');
+        } catch (error) {
+          alert(error instanceof Error ? error.message : 'Unable to resend verification email.');
+        }
+      }
+
+      document.querySelectorAll('.resend-link').forEach((link) => {
+        link.addEventListener('click', () => {
+          const emailField = body.dataset.mode === 'login' ? document.getElementById('login-email') : document.getElementById('signup-email');
+          const email = emailField?.value?.trim();
+          if (!email) {
+            alert('Enter your email first so we know where to send the verification message.');
+            return;
+          }
+          resendVerification(email);
+        });
+      });
+
+      const googleButton = document.getElementById('google-oauth');
+      googleButton.addEventListener('click', async () => {
+        const response = await fetch('/google/start');
+        if (response.status === 501) {
+          const data = await response.json().catch(() => ({}));
+          alert(data.detail || 'Google OAuth is not yet configured.');
+          return;
+        }
+        if (response.ok) {
+          const data = await response.json().catch(() => ({}));
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
