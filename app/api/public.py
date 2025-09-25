@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.templates import templates
@@ -14,12 +15,13 @@ from app.dependencies.auth import (
     require_super_admin,
     role_redirect,
 )
-from app.models import User
+from app.models import Organization, User
 from app.models.enums import TicketPriority, TicketStatus, UserRole
 from app.services.tickets import ISSUE_TYPES
 from app.services import tickets as ticket_service
-from app.services.metrics import platform_overview, recent_signups, recent_tickets
+from app.services.metrics import platform_overview
 from app.services.organizations import get_primary_membership
+from app.models.membership import Membership
 
 router = APIRouter(tags=["public"])
 
@@ -164,13 +166,66 @@ def admin_overview(
     db: Session = Depends(get_db),
 ):
     overview = platform_overview(db)
-    signups = recent_signups(db)
-    tickets = recent_tickets(db)
+    organization_rows = (
+        db.query(Organization, func.count(Membership.id))
+        .outerjoin(Membership, Membership.organization_id == Organization.id)
+        .group_by(Organization.id)
+        .order_by(Organization.created_at.desc())
+        .all()
+    )
+    organizations = [
+        {
+            "id": organization.id,
+            "name": organization.name,
+            "plan": organization.plan or "trial",
+            "created_at": organization.created_at,
+            "contact_email": organization.contact_email,
+            "member_count": member_count,
+        }
+        for organization, member_count in organization_rows
+    ]
     context = {
         "request": request,
         "current_user": current_user,
         "overview": overview,
-        "signups": signups,
-        "tickets": tickets,
+        "organizations": organizations,
+        "nav_active": "organizations",
     }
     return templates.TemplateResponse("admin_overview.html", context)
+
+
+@router.get("/admin/users", response_class=HTMLResponse)
+def admin_users(
+    request: Request,
+    current_user: User = Depends(require_super_admin),
+    db: Session = Depends(get_db),
+):
+    overview = platform_overview(db)
+    user_rows = (
+        db.query(User, func.count(Membership.id))
+        .outerjoin(Membership, Membership.user_id == User.id)
+        .group_by(User.id)
+        .order_by(User.created_at.desc())
+        .all()
+    )
+    users = [
+        {
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "primary_role": user.primary_role,
+            "email_verified": user.email_verified,
+            "is_active": user.is_active,
+            "created_at": user.created_at,
+            "member_count": member_count,
+        }
+        for user, member_count in user_rows
+    ]
+    context = {
+        "request": request,
+        "current_user": current_user,
+        "overview": overview,
+        "users": users,
+        "nav_active": "users",
+    }
+    return templates.TemplateResponse("admin_users.html", context)

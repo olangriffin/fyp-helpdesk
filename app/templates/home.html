@@ -1,224 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>SmartDesk Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: linear-gradient(160deg, #0f172a, #1e3a8a, #0f172a);
-      --card: rgba(15, 23, 42, 0.78);
-      --border: rgba(148, 163, 184, 0.2);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-strong: #0ea5e9;
-      --shadow: rgba(8, 47, 73, 0.35);
-    }
+{% extends "base.html" %}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Inter", "Segoe UI", sans-serif;
-    }
+{% block title %}SmartDesk Home{% endblock %}
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: clamp(2rem, 5vw, 3.5rem);
-      background: var(--bg);
-      color: var(--text);
-      gap: clamp(2rem, 4vw, 3rem);
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .brand {
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      font-size: 1rem;
-      color: var(--muted);
-    }
-
-    .profile {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 0.4rem 0.9rem;
-      background: rgba(15, 23, 42, 0.5);
-    }
-
-    .profile span {
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-
-    main {
-      display: grid;
-      gap: clamp(1.5rem, 4vw, 2.5rem);
-      flex: 1;
-    }
-
-    .hero {
-      display: grid;
-      gap: 1.2rem;
-      max-width: 720px;
-    }
-
-    .hero h1 {
-      font-size: clamp(2.4rem, 5vw, 3.2rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .hero p {
-      color: var(--muted);
-      font-size: clamp(1.05rem, 2.2vw, 1.25rem);
-      line-height: 1.6;
-    }
-
-    .cta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    a.button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 0.85rem 1.4rem;
-      border-radius: 14px;
-      border: 1px solid transparent;
-      font-size: 0.95rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: transform 0.2s ease, box-shadow 0.25s ease, border 0.25s ease;
-    }
-
-    a.button.primary {
-      background: linear-gradient(120deg, var(--accent), var(--accent-strong));
-      color: #0f172a;
-      box-shadow: 0 20px 45px var(--shadow);
-    }
-
-    a.button.primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 28px 55px rgba(56, 189, 248, 0.45);
-    }
-
-    a.button.secondary {
-      background: rgba(15, 23, 42, 0.4);
-      color: var(--text);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-    }
-
-    a.button.secondary:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 1.2rem 1.3rem;
-      display: grid;
-      gap: 0.8rem;
-      box-shadow: 0 25px 45px rgba(15, 23, 42, 0.25);
-    }
-
-    .card h2 {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .card p {
-      color: var(--muted);
-      line-height: 1.5;
-      font-size: 0.95rem;
-    }
-
-    footer {
-      color: rgba(148, 163, 184, 0.65);
-      font-size: 0.85rem;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-
-    @media (max-width: 720px) {
-      body {
-        padding: clamp(1.2rem, 5vw, 2rem);
-      }
-
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-  </style>
-</head>
-<body>
-  {% include "partials/nav.html" %}
-  <header>
-    <span class="brand">SmartDesk</span>
-    <div class="profile">
-      <strong>{{ current_user.full_name or current_user.email }}</strong>
-      <span>{{ current_user.primary_role | replace('_', ' ') | title }}</span>
+{% block content %}
+{% include "partials/nav.html" %}
+<main class="layout-page">
+  <section class="surface-card" data-animate="fade">
+    <div class="surface-card__header">
+      <span class="brand-mark">SmartDesk</span>
+      <div>
+        <strong>{{ current_user.full_name or current_user.email }}</strong>
+        <p class="surface-card__meta">{{ current_user.primary_role | replace('_', ' ') | title }}</p>
+      </div>
     </div>
-  </header>
-  <main>
-    <section class="hero">
-      <h1>Welcome back, {{ current_user.full_name or current_user.email.split('@')[0] }}.</h1>
-      <p>Your SmartDesk workspace gives you quick access to every tool you need to stay on top of tickets, monitor operations, and support your team.</p>
-      <div class="cta">
-        <a href="{{ role_home }}" class="button primary">Enter my dashboard</a>
+    <div class="hero">
+      <h1 class="hero-title">Welcome back, {{ current_user.full_name or current_user.email.split('@')[0] }}.</h1>
+      <p class="hero-subtitle">Your SmartDesk workspace gives you quick access to every tool you need to stay on top of tickets, monitor operations, and support your team.</p>
+      <div class="cta-group">
+        <a href="{{ role_home }}" class="button button-primary">Enter my dashboard</a>
         {% if current_user.primary_role == 'it_manager' %}
-        <a href="/desk" class="button secondary">Open helpdesk form</a>
+          <a href="/desk" class="button button-secondary">Open helpdesk form</a>
         {% elif current_user.primary_role == 'smartdesk_staff' %}
-        <a href="/admin/overview" class="button secondary">Platform overview</a>
+          <a href="/admin/overview" class="button button-secondary">Platform overview</a>
         {% else %}
-        <a href="/desk" class="button secondary">Submit a ticket</a>
+          <a href="/desk" class="button button-secondary">Submit a ticket</a>
         {% endif %}
       </div>
-    </section>
-    <section class="cards">
-      <article class="card">
-        <h2>Recent activity</h2>
-        <p>Track your latest tickets, assignments, and updates in real time. Upcoming iterations will tailor this view to your role.</p>
-      </article>
-      <article class="card">
-        <h2>Need to switch roles?</h2>
-        <p>Contact your SmartDesk administrator to adjust permissions or add teammates to your workspace.</p>
-      </article>
-      <article class="card">
-        <h2>Next steps</h2>
-        <p>Use the Helpdesk to file or triage issues. Admins can jump into the console for analytics and escalations.</p>
-      </article>
-    </section>
-  </main>
-  <footer>
-    <span>&copy; {{ year }} SmartDesk Platform</span>
-    <span>Questions? Reach out to SmartDesk Support.</span>
-  </footer>
-</body>
-</html>
+    </div>
+  </section>
+
+  <section class="card-grid" data-animate="fade">
+    <article class="surface-card" data-hover-tilt="true">
+      <h2 class="surface-card__title">Recent activity</h2>
+      <p>Track your latest tickets, assignments, and updates in real time. Upcoming iterations will tailor this view to your role.</p>
+    </article>
+    <article class="surface-card" data-hover-tilt="true">
+      <h2 class="surface-card__title">Need to switch roles?</h2>
+      <p>Contact your SmartDesk administrator to adjust permissions or add teammates to your workspace.</p>
+    </article>
+    <article class="surface-card" data-hover-tilt="true">
+      <h2 class="surface-card__title">Next steps</h2>
+      <p>Use the Helpdesk to file or triage issues. Admins can jump into the console for analytics and escalations.</p>
+    </article>
+  </section>
+</main>
+<footer class="footer">
+  <span>&copy; {{ year }} SmartDesk Platform</span>
+  <span>Questions? Reach out to SmartDesk Support.</span>
+</footer>
+{% endblock %}

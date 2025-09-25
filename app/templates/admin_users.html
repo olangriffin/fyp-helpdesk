@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}SmartDesk Admin · Users{% endblock %}
+
+{% block content %}
+{% include "partials/nav.html" %}
+<div class="admin-layout">
+  {% include "partials/admin_sidebar.html" %}
+  <section class="admin-main">
+    <article class="surface-card" data-animate="fade">
+      <div class="surface-card__header">
+        <h1 class="hero-title">Users</h1>
+        <span class="surface-card__meta">Total accounts: {{ overview.users }}</span>
+      </div>
+      <div class="stat-grid" style="margin-top:1.5rem;">
+        <div class="stat-card" data-hover-tilt="true">
+          <span>Verified users</span>
+          <strong>{{ overview.verified_users }}</strong>
+        </div>
+        <div class="stat-card" data-hover-tilt="true">
+          <span>Organisations</span>
+          <strong>{{ overview.organizations }}</strong>
+        </div>
+        <div class="stat-card" data-hover-tilt="true">
+          <span>Total memberships</span>
+          <strong>{{ overview.memberships }}</strong>
+        </div>
+        <div class="stat-card" data-hover-tilt="true">
+          <span>Total tickets</span>
+          <strong>{{ overview.tickets }}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="surface-card" data-animate="fade">
+      <div class="surface-card__header">
+        <h2 class="surface-card__title">User directory</h2>
+        <span class="surface-card__meta">Latest accounts first</span>
+      </div>
+      {% if users %}
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Primary role</th>
+                <th>Verified</th>
+                <th>Status</th>
+                <th>Organisations</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+                <tr>
+                  <td>{{ user.full_name or '—' }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.primary_role.replace('_', ' ') | title }}</td>
+                  <td>
+                    <span class="status-pill" data-status="{{ 'verified' if user.email_verified else 'pending' }}">
+                      {{ 'Yes' if user.email_verified else 'No' }}
+                    </span>
+                  </td>
+                  <td>{{ 'Active' if user.is_active else 'Disabled' }}</td>
+                  <td>{{ user.member_count }}</td>
+                  <td class="surface-card__meta">{{ user.created_at.strftime('%d %b %Y') }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="surface-card__meta">No users found.</p>
+      {% endif %}
+    </article>
+  </section>
+</div>
+{% endblock %}

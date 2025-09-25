@@ -1,544 +1,112 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>{{ title }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #020617;
-      --bg-gradient: radial-gradient(circle at 15% 20%, rgba(14, 116, 144, 0.35), transparent 45%),
-        radial-gradient(circle at 85% 15%, rgba(99, 102, 241, 0.3), transparent 55%),
-        radial-gradient(circle at 50% 80%, rgba(79, 70, 229, 0.22), transparent 70%),
-        #020617;
-      --card: rgba(15, 23, 42, 0.7);
-      --card-alt: rgba(2, 6, 23, 0.85);
-      --border: rgba(148, 163, 184, 0.25);
-      --divider: rgba(148, 163, 184, 0.18);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-strong: #0ea5e9;
-      --accent-soft: rgba(56, 189, 248, 0.15);
-      --surface-glow: rgba(56, 189, 248, 0.2);
-      --shadow: rgba(8, 47, 73, 0.35);
-    }
+{% extends "base.html" %}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Inter", "Segoe UI", sans-serif;
-    }
+{% block title %}{{ title }}{% endblock %}
 
-    body {
-      min-height: 100vh;
-      background: var(--bg-gradient);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-    }
+{% block body_attrs %} class="is-landing"{% endblock %}
 
-    .page {
-      width: min(1180px, 94vw);
-      margin: 0 auto;
-      display: grid;
-      gap: clamp(3rem, 8vw, 6rem);
-      padding: clamp(2rem, 4vw, 3.5rem) 0 clamp(4rem, 8vw, 6rem);
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      backdrop-filter: blur(25px);
-      background: rgba(2, 6, 23, 0.6);
-      border-bottom: 1px solid var(--border);
-      z-index: 20;
-    }
-
-    header .shell {
-      width: min(1180px, 94vw);
-      margin: 0 auto;
-      padding: 1.2rem 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
-    }
-
-    nav {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    nav a {
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 0.95rem;
-      padding: 0.45rem 0.8rem;
-      border-radius: 999px;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-
-    nav a:hover {
-      color: var(--text);
-      background: rgba(148, 163, 184, 0.15);
-    }
-
-    .brand {
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .cta-group {
-      display: flex;
-      gap: 0.8rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem 1.3rem;
-      border-radius: 12px;
-      font-weight: 600;
-      border: 1px solid transparent;
-      text-decoration: none;
-      transition: transform 0.2s ease, box-shadow 0.25s ease, border 0.25s ease;
-      font-size: 0.95rem;
-    }
-
-    .button.primary {
-      background: linear-gradient(120deg, var(--accent), var(--accent-strong));
-      color: #0f172a;
-      box-shadow: 0 20px 45px rgba(56, 189, 248, 0.3);
-    }
-
-    .button.primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 26px 55px rgba(56, 189, 248, 0.42);
-    }
-
-    .button.secondary {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-    }
-
-    .button.secondary:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    section {
-      display: grid;
-      gap: clamp(1.2rem, 3vw, 2rem);
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.35rem 0.8rem;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 0.85rem;
-      width: fit-content;
-    }
-
-    .hero {
-      display: grid;
-      gap: clamp(1.5rem, 3vw, 2.5rem);
-      max-width: 900px;
-    }
-
-    .hero h1 {
-      font-size: clamp(2.8rem, 6vw, 4rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      line-height: 1.05;
-    }
-
-    .hero p {
-      color: var(--muted);
-      font-size: clamp(1.15rem, 2.5vw, 1.3rem);
-      line-height: 1.6;
-      max-width: 620px;
-    }
-
-    .hero-metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1rem;
-    }
-
-    .metric {
-      padding: 1.1rem 1.3rem;
-      border-radius: 16px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.3);
-      transition: transform 0.3s ease, border 0.3s ease;
-    }
-
-    .metric:hover {
-      transform: translateY(-6px);
-      border-color: var(--accent);
-    }
-
-    .metric strong {
-      font-size: 1.8rem;
-      font-weight: 700;
-    }
-
-    .metric span {
-      display: block;
-      color: var(--muted);
-      margin-top: 0.4rem;
-      font-size: 0.9rem;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .feature-card {
-      position: relative;
-      padding: 1.6rem;
-      border-radius: 20px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      overflow: hidden;
-      min-height: 220px;
-      transition: transform 0.25s ease, border 0.25s ease;
-    }
-
-    .feature-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.22), transparent 55%);
-      opacity: 0;
-      transition: opacity 0.25s ease;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-6px);
-      border-color: var(--accent);
-    }
-
-    .feature-card:hover::after {
-      opacity: 1;
-    }
-
-    .feature-card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.8rem;
-    }
-
-    .feature-card p {
-      color: var(--muted);
-      line-height: 1.55;
-      font-size: 0.95rem;
-    }
-
-    .tour {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.8rem;
-      align-items: stretch;
-    }
-
-    .tour-step {
-      background: var(--card-alt);
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      padding: 1.8rem 1.6rem;
-      display: grid;
-      gap: 0.85rem;
-      position: relative;
-      box-shadow: 0 22px 50px rgba(8, 47, 73, 0.35);
-    }
-
-    .tour-step span.index {
-      width: 2.1rem;
-      height: 2.1rem;
-      border-radius: 999px;
-      border: 1px solid var(--accent);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      color: var(--accent);
-    }
-
-    .tour-step strong {
-      font-size: 1.05rem;
-    }
-
-    .tour-step p {
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .demo-panel {
-      position: relative;
-      padding: 2rem;
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.9));
-      display: grid;
-      gap: 1rem;
-      overflow: hidden;
-    }
-
-    .demo-panel::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at right, rgba(14, 165, 233, 0.35), transparent 60%);
-      pointer-events: none;
-    }
-
-    .demo-panel h2 {
-      font-size: 1.5rem;
-      z-index: 1;
-    }
-
-    .demo-panel p {
-      color: var(--muted);
-      z-index: 1;
-      line-height: 1.55;
-    }
-
-    .demo-panel form {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 0.8rem;
-      z-index: 1;
-    }
-
-    .demo-panel input,
-    .demo-panel button {
-      border-radius: 14px;
-      padding: 0.8rem 1rem;
-      border: 1px solid transparent;
-      font-size: 0.95rem;
-    }
-
-    .demo-panel input {
-      background: rgba(15, 23, 42, 0.75);
-      color: var(--text);
-      border-color: rgba(148, 163, 184, 0.25);
-    }
-
-    .demo-panel input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-soft);
-    }
-
-    .demo-panel button {
-      background: linear-gradient(120deg, var(--accent), var(--accent-strong));
-      color: #0f172a;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 14px 30px rgba(56, 189, 248, 0.25);
-    }
-
-    footer {
-      border-top: 1px solid var(--border);
-      background: rgba(2, 6, 23, 0.75);
-      padding: 1.6rem 0;
-    }
-
-    footer .shell {
-      width: min(1180px, 94vw);
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-      color: rgba(148, 163, 184, 0.7);
-      font-size: 0.9rem;
-    }
-
-    .contact-links {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .contact-links a {
-      color: var(--accent);
-      text-decoration: none;
-      transition: opacity 0.2s ease;
-    }
-
-    .contact-links a:hover {
-      opacity: 0.75;
-    }
-
-    @media (max-width: 840px) {
-      header {
-        position: static;
-      }
-
-      header .shell {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .hero-metrics {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      }
-
-      .cta-group {
-        width: 100%;
-      }
-
-      .cta-group .button {
-        flex: 1;
-        justify-content: center;
-      }
-
-      .demo-panel form {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="shell">
-      <span class="brand">SmartDesk</span>
-      <nav>
-        <a href="#tour">Product Tour</a>
-        <a href="#features">Features</a>
-        <a href="#demo">Request Demo</a>
-        <a href="#contact">Contact</a>
-      </nav>
-      <div class="cta-group">
-        <a class="button secondary" href="/auth?mode=login">Log in</a>
-        <a class="button primary" href="/auth?mode=signup">Start free trial</a>
-      </div>
-    </div>
-  </header>
-  <div class="page">
-    <section class="hero">
-      <span class="pill">AI-powered IT service automation</span>
-      <h1>Delight employees and accelerate resolutions with SmartDesk.</h1>
-      <p>Give every team a modern helpdesk experience with conversational ticketing, real-time analytics, and automated resolution flows tailored to your organisation.</p>
-      <div class="cta-group">
-        <a class="button primary" href="/auth?mode=signup">Get started instantly</a>
-        <a class="button secondary" href="#demo">Request a guided demo</a>
-      </div>
-      <div class="hero-metrics">
-        <div class="metric">
-          <strong>92%</strong>
-          <span>tickets resolved on first response with SmartDesk automation.</span>
-        </div>
-        <div class="metric">
-          <strong>30min</strong>
-          <span>average time saved per agent per day using workflow recipes.</span>
-        </div>
-        <div class="metric">
-          <strong>24/7</strong>
-          <span>self-service portal for every region and device.</span>
-        </div>
-      </div>
-    </section>
-
-    <section id="features">
-      <h2>Why modern IT teams choose SmartDesk</h2>
-      <div class="features-grid">
-        <article class="feature-card">
-          <h3>Guided ticket journeys</h3>
-          <p>Design branded, dynamic submission flows for every department. Capture rich context, route instantly, and personalise follow-up actions.</p>
-        </article>
-        <article class="feature-card">
-          <h3>Intelligent automation</h3>
-          <p>Automate triage, escalation, and resolution with machine learning suggestions, playbooks, and team-specific approval chains.</p>
-        </article>
-        <article class="feature-card">
-          <h3>Unified analytics</h3>
-          <p>Track SLAs, agent performance, and employee satisfaction in real time with dashboards that adapt to IT managers and execs.</p>
-        </article>
-        <article class="feature-card">
-          <h3>Enterprise-grade security</h3>
-          <p>Single sign-on, least privilege roles, audit trails, and data residency options keep your organisation compliant and secure.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="tour" class="tour">
-      <article class="tour-step">
-        <span class="index">1</span>
-        <strong>Explore ticket templates</strong>
-        <p>Preview curated templates for onboarding, access requests, incidents, and more. Interact with each layout to see how SmartDesk guides submitters.</p>
-      </article>
-      <article class="tour-step">
-        <span class="index">2</span>
-        <strong>Simulate automations</strong>
-        <p>Toggle workflow recipes to watch routing, notifications, and approvals adapt instantly. Experience how automation compresses resolution times.</p>
-      </article>
-      <article class="tour-step">
-        <span class="index">3</span>
-        <strong>Analyse live dashboards</strong>
-        <p>Dive into sample analytics for real organisations. Filter by team, priority, and region to understand the insights SmartDesk provides.</p>
-      </article>
-    </section>
-
-    <section id="demo" class="demo-panel">
-      <h2>Request a personalised SmartDesk walkthrough</h2>
-      <p>Tell us a little about your organisation and our team will schedule a tailored session within one business day.</p>
-      <form id="demo-form">
-        <input type="text" name="name" placeholder="Full name" required>
-        <input type="email" name="email" placeholder="Work email" required>
-        <input type="text" name="company" placeholder="Company" required>
-        <button type="submit">Book my demo</button>
-      </form>
-      <small style="color: var(--muted); z-index:1;">Prefer to chat now? <a href="mailto:hello@smartdesk.ai" style="color: var(--accent); text-decoration:none;">hello@smartdesk.ai</a></small>
-    </section>
+{% block content %}
+<header class="layout-header is-landing" data-animate="fade">
+  <span class="brand-mark">SmartDesk</span>
+  <nav class="nav-links">
+    <a href="#tour">Product Tour</a>
+    <a href="#features">Features</a>
+    <a href="#demo">Request Demo</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <div class="cta-group">
+    <a class="button button-secondary" href="/auth?mode=login">Log in</a>
+    <a class="button button-primary" href="/auth?mode=signup">Start free trial</a>
   </div>
-  <footer id="contact">
-    <div class="shell">
-      <span>&copy; {{ year }} SmartDesk. Crafted for high-performing IT teams.</span>
-      <div class="contact-links">
-        <a href="mailto:hello@smartdesk.ai">Email support</a>
-        <a href="tel:+123456789">Call sales</a>
-        <a href="/auth?mode=login">Customer login</a>
+</header>
+
+<main class="layout-page">
+  <section class="hero" data-animate="fade">
+    <span class="badge-pill">AI-powered IT service automation</span>
+    <h1 class="hero-title">Streamline and accelerate resolutions with SmartDesk.</h1>
+    <p class="hero-subtitle">Give your team a modern helpdesk experience with conversational ticketing, real-time analytics, and automated resolution flows tailored to your organisation.</p>
+    <div class="cta-group">
+      <a class="button button-primary" href="/auth?mode=signup">Get started instantly</a>
+      <a class="button button-secondary" href="#demo">Request a guided demo</a>
+    </div>
+    <div class="stat-grid" data-animate="fade">
+      <div class="stat-card" data-hover-tilt="true">
+        <span>Tickets resolved on first response with SmartDesk automation.</span>
+        <strong>92%</strong>
+      </div>
+      <div class="stat-card" data-hover-tilt="true">
+        <span>Average time saved per agent per day using workflow recipes.</span>
+        <strong>30&nbsp;min</strong>
+      </div>
+      <div class="stat-card" data-hover-tilt="true">
+        <span>Self-service portal availability for every region and device.</span>
+        <strong>24/7</strong>
       </div>
     </div>
-  </footer>
-  <script>
-    const featureCards = document.querySelectorAll('.feature-card');
-    featureCards.forEach((card) => {
-      card.addEventListener('mouseenter', () => {
-        card.style.transform = 'translateY(-8px)';
-      });
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = '';
-      });
-    });
+  </section>
 
-    document.getElementById('demo-form').addEventListener('submit', (event) => {
-      event.preventDefault();
-      const form = event.currentTarget;
-      form.querySelector('button').textContent = 'Request sent';
-      form.querySelector('button').disabled = true;
-      form.reset();
-    });
-  </script>
-</body>
-</html>
+  <section id="features" data-animate="fade">
+    <h2 class="surface-card__title">Why modern IT teams choose SmartDesk</h2>
+    <div class="card-grid">
+      <article class="surface-card" data-hover-tilt="true">
+        <h3 class="surface-card__title">Guided ticket journeys</h3>
+        <p>Design branded, dynamic submission flows for every department. Capture rich context, route instantly, and personalise follow-up actions.</p>
+      </article>
+      <article class="surface-card" data-hover-tilt="true">
+        <h3 class="surface-card__title">Intelligent automation</h3>
+        <p>Automate triage, escalation, and resolution with machine learning suggestions, playbooks, and team-specific approval chains.</p>
+      </article>
+      <article class="surface-card" data-hover-tilt="true">
+        <h3 class="surface-card__title">Unified analytics</h3>
+        <p>Track SLAs, agent performance, and employee satisfaction in real time with dashboards that adapt to IT managers and execs.</p>
+      </article>
+      <article class="surface-card" data-hover-tilt="true">
+        <h3 class="surface-card__title">Enterprise-grade security</h3>
+        <p>Single sign-on, least privilege roles, audit trails, and data residency options keep your organisation compliant and secure.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="tour" class="card-grid" data-animate="fade">
+    <article class="surface-card" data-hover-tilt="true">
+      <span class="badge-pill">Step 1</span>
+      <h3 class="surface-card__title">Explore ticket templates</h3>
+      <p>Preview curated templates for onboarding, access requests, incidents, and more. Interact with each layout to see how SmartDesk guides submitters.</p>
+    </article>
+    <article class="surface-card" data-hover-tilt="true">
+      <span class="badge-pill">Step 2</span>
+      <h3 class="surface-card__title">Simulate automations</h3>
+      <p>Toggle workflow recipes to watch routing, notifications, and approvals adapt instantly. Experience how automation compresses resolution times.</p>
+    </article>
+    <article class="surface-card" data-hover-tilt="true">
+      <span class="badge-pill">Step 3</span>
+      <h3 class="surface-card__title">Analyse live dashboards</h3>
+      <p>Dive into sample analytics for real organisations. Filter by team, priority, and region to understand the insights SmartDesk provides.</p>
+    </article>
+  </section>
+
+  <section id="demo" class="surface-card" data-animate="fade">
+    <h2 class="surface-card__title">Request a personalised SmartDesk walkthrough</h2>
+    <p>Tell us a little about your organisation and our team will schedule a tailored session within one business day.</p>
+    <form id="demo-form" class="input-inline" data-demo-form>
+      <input type="text" name="name" placeholder="Full name" required>
+      <input type="email" name="email" placeholder="Work email" required>
+      <input type="text" name="company" placeholder="Company" required>
+      <button type="submit" class="button button-primary">Book my demo</button>
+    </form>
+    <small>Prefer to chat now? <a href="mailto:hello@smartdesk.ai">hello@smartdesk.ai</a></small>
+  </section>
+</main>
+
+<footer id="contact" class="footer">
+  <span>&copy; {{ year }} SmartDesk. Crafted for high-performing IT teams.</span>
+  <div class="cta-group">
+    <a href="mailto:hello@smartdesk.ai">Email support</a>
+    <a href="tel:+123456789">Call sales</a>
+    <a href="/auth?mode=login">Customer login</a>
+  </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/scripts/landing.js" defer></script>
+{% endblock %}
